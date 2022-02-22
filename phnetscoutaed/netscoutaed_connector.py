@@ -398,7 +398,12 @@ class NetscoutAedConnector(BaseConnector):
         return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_list_allowed_hosts(self, param):
-        # Implement the handler here
+        """ This function is used to disallow IP or CIDR.
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
         # use self.save_progress(...) to send progress messages back to the platform
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 

@@ -562,7 +562,8 @@ class NetscoutAedConnector(BaseConnector):
 
         if cid == 'null' and pgid == 'null':
             json_data[pgid] = '-1'
-            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected. Defaulting to global protection group")
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
 
         elif cid != 'null' and pgid == 'null':
             json_data[cid] = cid

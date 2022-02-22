@@ -689,7 +689,7 @@ class NetscoutAedConnector(BaseConnector):
 
         self._server_url = config[NETSCOUTAED_TA_CONFIG_SERVER_URL].strip("/")
         self._api_token = config[NETSCOUTAED_TA_CONFIG_API_TOKEN]
-        self._verify_server_cert = config.get(NETSCOUTAED_TA_CONFIG_VERIFY_SSL,False)
+        self._verify_server_cert = config.get(NETSCOUTAED_TA_CONFIG_VERIFY_SSL, False)
 
         return phantom.APP_SUCCESS
 

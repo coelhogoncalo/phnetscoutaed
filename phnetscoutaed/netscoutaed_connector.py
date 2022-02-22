@@ -170,7 +170,7 @@ class NetscoutAedConnector(BaseConnector):
         # The status and progress messages are more important.
 
         self.save_progress("Connecting to endpoint")
-        # make rest call
+        # Make rest call
         ret_val, response = self._make_rest_call(
             NETSCOUTAED_REST_SUMMARY, action_result, params=None, method='get', headers={
                 'X-Arbux-APIToken': self._api_token,
@@ -178,18 +178,17 @@ class NetscoutAedConnector(BaseConnector):
             }
         )
 
-        if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
+        if response.status_code == "400":
             self.save_progress("Test Connectivity Failed.")
-            return action_result.get_status()
+            return action_result.get_status(phantom.APP_ERROR)
+
+        if phantom.is_fail(ret_val):
+            self.save_progress("Test Connectivity Failed.")
+            return action_result.get_status(phantom.APP_ERROR)
 
         # Return success
         self.save_progress("Test Connectivity Passed")
         return action_result.set_status(phantom.APP_SUCCESS)
-
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_block_ip(self, param):
         """ This function is used to block outbound hosts (IP, CIDR).
@@ -396,8 +395,8 @@ class NetscoutAedConnector(BaseConnector):
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
-    def _handle_list_allowed_hosts(self, param):
-        """ This function is used to disallow IP or CIDR.
+    def _handle_list_outbound_allowed_hosts(self, param):
+        """ This function is used to list outbound allowed hosts.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
@@ -409,89 +408,55 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Access action parameters passed in the 'param' dictionary
-
-        # Required values can be accessed directly
-        # required_parameter = param['required_parameter']
-
-        # Optional values should use the .get() function
-        # optional_parameter = param.get('optional_parameter', 'default_value')
-
-        # make rest call
+        # Make rest call
         ret_val, response = self._make_rest_call(
-            NETSCOUTAED_REST_ALLOWED_IPS, action_result, params=None, method='get', headers={
+            NETSCOUTAED_REST_OUTBOUND_ALLOWED_HOSTS, action_result, params=None, method='get', headers={
                 'X-Arbux-APIToken': self._api_token,
                 'Accept': 'application/json'
             }
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
 
-
-        # Now post process the data,  uncomment code as you deem fit
+        hosts = response.pop('allowed-hosts')
 
         # Add the response into the data section
         action_result.add_data(response)
+        action_result.update_summary({'num_hosts': len(hosts)})
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
 
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+    def _handle_list_outbound_denied_hosts(self, param):
+        """ This function is used to list outbound denied hosts.
 
-    def _handle_list_blocked_hosts(self, param):
-        # Implement the handler here
-        # use self.save_progress(...) to send progress messages back to the platform
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Access action parameters passed in the 'param' dictionary
-
-        # Required values can be accessed directly
-        # required_parameter = param['required_parameter']
-
-        # Optional values should use the .get() function
-        # optional_parameter = param.get('optional_parameter', 'default_value')
-
-        # make rest call
+        # Make rest call
         ret_val, response = self._make_rest_call(
-            NETSCOUTAED_REST_BLOCKED_IPS, action_result, params=None, headers={
+            NETSCOUTAED_REST_OUTBOUND_DENIED_HOSTS, action_result, params=None, headers={
                 'X-Arbux-APIToken': self._api_token,
                 'Accept': 'application/json'
             }
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
-            # return action_result.get_status()
-            pass
+            return action_result.get_status()
 
-        # Now post process the data,  uncomment code as you deem fit
+        hosts = response.pop('denied-hosts')
 
         # Add the response into the data section
         action_result.add_data(response)
+        action_result.update_summary({'num_hosts': len(hosts)})
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
-
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_list_inbound_allowed_hosts(self, param):
         # Implement the handler here
@@ -522,7 +487,6 @@ class NetscoutAedConnector(BaseConnector):
             # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
 
-
         # Now post process the data,  uncomment code as you deem fit
 
         # Add the response into the data section
@@ -542,20 +506,13 @@ class NetscoutAedConnector(BaseConnector):
     def _handle_list_inbound_denied_hosts(self, param):
         # Implement the handler here
         # use self.save_progress(...) to send progress messages back to the platform
+
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Access action parameters passed in the 'param' dictionary
-
-        # Required values can be accessed directly
-        # required_parameter = param['required_parameter']
-
-        # Optional values should use the .get() function
-        # optional_parameter = param.get('optional_parameter', 'default_value')
-
-        # make rest call
+        # Make rest call
         ret_val, response = self._make_rest_call(
             NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, method='get', headers={
                 'X-Arbux-APIToken': self._api_token,
@@ -567,7 +524,6 @@ class NetscoutAedConnector(BaseConnector):
             # the call to the 3rd party device or service failed, action result should contain all the error details
             # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
-
 
         # Now post process the data,  uncomment code as you deem fit
 
@@ -617,7 +573,7 @@ class NetscoutAedConnector(BaseConnector):
         json_data[hostAddress] = hosts
         json_data[annotation] = annotation
 
-        # make rest call
+        # Make rest call
         ret_val, response = self._make_rest_call(
             NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
                 'X-Arbux-APIToken': self._api_token,
@@ -667,20 +623,20 @@ class NetscoutAedConnector(BaseConnector):
         if action_id == 'disallow_ip':
             ret_val = self._handle_disallow_ip(param)
 
-        if action_id == 'list_allowed_hosts':
-            ret_val = self._handle_list_allowed_hosts(param)
+        if action_id == 'block_inbound_host':
+            ret_val = self._handle_block_inbound_host(param)
 
-        if action_id == 'list_blocked_hosts':
-            ret_val = self._handle_list_blocked_hosts(param)
+        if action_id == 'list_outbound_allowed_hosts':
+            ret_val = self._handle_list_outbound_allowed_hosts(param)
+
+        if action_id == 'list_outbound_denied_hosts':
+            ret_val = self._handle_list_outbound_denied_hosts(param)
 
         if action_id == 'list_inbound_allowed_hosts':
             ret_val = self._handle_list_inbound_allowed_hosts(param)
 
         if action_id == 'list_inbound_denied_hosts':
             ret_val = self._handle_list_inbound_denied_hosts(param)
-
-        if action_id == 'block_inbound_host':
-            ret_val = self._handle_block_inbound_host(param)
 
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
@@ -694,16 +650,6 @@ class NetscoutAedConnector(BaseConnector):
 
         # get the asset config
         config = self.get_config()
-
-        """
-        # Access values in asset config by the name
-
-        # Required values can be accessed directly
-        required_config_name = config['required_config_name']
-
-        # Optional values should use the .get() function
-        optional_config_name = config.get('optional_config_name')
-        """
 
         self._server_url = config[NETSCOUTAED_TA_CONFIG_SERVER_URL].strip("/")
         self._api_token = config[NETSCOUTAED_TA_CONFIG_API_TOKEN]

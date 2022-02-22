@@ -15,4 +15,5 @@ NETSCOUTAED_REST_INBOUND_ALLOWED_HOSTS = '/api/aed/v3/protection-groups/allowed-
 NETSCOUTAED_REST_INBOUND_DENIED_HOSTS = '/api/aed/v3/protection-groups/denied-hosts/'
 
 # Messages
+NETSOCUTAED_DEFAULT_ANNOTATION = 'Added by Splunk SOAR'
 NETSCOUTAED_INVALID_IP = "Parameter 'ip' failed validation"

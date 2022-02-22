@@ -591,20 +591,27 @@ class NetscoutAedConnector(BaseConnector):
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
         """
-        # use self.save_progress(...) to send progress messages back to the platform
+
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         host = param['hostaddress']
-        cid = param.get('cid', '-1')
-        pgid = param.get('pgid', '-1')
-        annotation = param.get('annotation', NETSOCUTAED_DEFAULT_ANNOTATION)
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_DEFAULT_ANNOTATION)
 
         json_data = {}
 
-        if cid == '-1' and pgid == '-1':
+        if cid == 'null' and pgid == 'null':
+            json_data[pgid] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected. Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data[cid] = cid
+
+        elif cid == 'null' and pgid != 'null':
             json_data[pgid] = pgid
 
         json_data[hostAddress] = hosts

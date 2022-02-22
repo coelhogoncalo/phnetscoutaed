@@ -294,6 +294,11 @@ class NetscoutAedConnector(BaseConnector):
         return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_allow_ip(self, param):
+        """ This function is used to allowlist IP or CIDR.
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
         # Implement the handler here
         # use self.save_progress(...) to send progress messages back to the platform
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -341,6 +346,11 @@ class NetscoutAedConnector(BaseConnector):
         return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_disallow_ip(self, param):
+        """ This function is used to disallow IP or CIDR.
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
         # Implement the handler here
         # use self.save_progress(...) to send progress messages back to the platform
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
@@ -572,23 +582,21 @@ class NetscoutAedConnector(BaseConnector):
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_block_inbound_host(self, param):
-        # Implement the handler here
+        """ This function is used to add host(s) to the inbound block list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
         # use self.save_progress(...) to send progress messages back to the platform
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Access action parameters passed in the 'param' dictionary
-
-        # Required values can be accessed directly
-        # required_parameter = param['required_parameter']
-
-        # Optional values should use the .get() function
         host = param['hostaddress']
         cid = param.get('cid', '-1')
         pgid = param.get('pgid', '-1')
-        annotation = param.get('annotation', 'Added by Splunk SOAR')
+        annotation = param.get('annotation', NETSOCUTAED_DEFAULT_ANNOTATION)
 
         json_data = {}
 
@@ -611,7 +619,6 @@ class NetscoutAedConnector(BaseConnector):
             # the call to the 3rd party device or service failed, action result should contain all the error details
             # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
-            pass
 
         # Now post process the data,  uncomment code as you deem fit
 

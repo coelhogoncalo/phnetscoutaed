@@ -326,8 +326,7 @@ class NetscoutAedConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             # the call to the 3rd party device or service failed, action result should contain all the error details
             # for now the return is commented out, but after implementation, return from here
-            # return action_result.get_status()
-            pass
+            return action_result.get_status()
 
         # Now post process the data,  uncomment code as you deem fit
 

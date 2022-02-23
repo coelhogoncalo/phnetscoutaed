@@ -20,6 +20,7 @@ from netscoutaed_consts import *
 from phantom.base_connector import BaseConnector
 from phantom.action_result import ActionResult
 
+
 class RetVal(tuple):
 
     def __new__(cls, val1, val2=None):

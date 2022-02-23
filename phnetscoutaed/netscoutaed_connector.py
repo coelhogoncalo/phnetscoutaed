@@ -208,7 +208,7 @@ class NetscoutAedConnector(BaseConnector):
         # Required values can be accessed directly
         ip = param['ip']
 
-        json_data = '{"hostAddress"  : "'+str(ip)+'", "annotation": "Blocked by Splunk SOAR" }'
+        json_data = '{"hostAddress"  : "' + str(ip) + '", "annotation": "Blocked by Splunk SOAR" }'
 
         # Optional values should use the .get() function
         # optional_parameter = param.get('optional_parameter', 'default_value')
@@ -521,9 +521,7 @@ class NetscoutAedConnector(BaseConnector):
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
-            return action_result.get_status()
+            return action_result.get_status(phantom.APP_ERROR)
 
         # Now post process the data,  uncomment code as you deem fit
 
@@ -584,11 +582,7 @@ class NetscoutAedConnector(BaseConnector):
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
-
-        # Now post process the data,  uncomment code as you deem fit
 
         # Add the response into the data section
         action_result.add_data(response)
@@ -599,10 +593,10 @@ class NetscoutAedConnector(BaseConnector):
 
         # Return success, no need to set the message, only the status
         # BaseConnector will create a textual message based off of the summary dictionary
-        # return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(phantom.APP_SUCCESS)
 
         # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
@@ -626,6 +620,9 @@ class NetscoutAedConnector(BaseConnector):
 
         if action_id == 'block_inbound_host':
             ret_val = self._handle_block_inbound_host(param)
+
+        if action_id == 'unblock_inbound_host':
+            ret_val = self._handle_unblock_inbound_host(param)
 
         if action_id == 'list_outbound_allowed_hosts':
             ret_val = self._handle_list_outbound_allowed_hosts(param)

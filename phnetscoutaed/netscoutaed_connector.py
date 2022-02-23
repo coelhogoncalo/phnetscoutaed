@@ -161,6 +161,11 @@ class NetscoutAedConnector(BaseConnector):
         return self._process_response(r, action_result)
 
     def _handle_test_connectivity(self, param):
+        """ This function is used to test the connectivity to the configured asset
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
@@ -210,10 +215,7 @@ class NetscoutAedConnector(BaseConnector):
 
         json_data = '{"hostAddress"  : "' + str(ip) + '", "annotation": "Blocked by Splunk SOAR" }'
 
-        # Optional values should use the .get() function
-        # optional_parameter = param.get('optional_parameter', 'default_value')
-
-        # make rest call
+        # Make rest call
         ret_val, response = self._make_rest_call(
             NETSCOUTAED_REST_BLOCKED_IPS, action_result, params=None, data=json_data, method='post', headers={
                 'X-Arbux-APIToken': self._api_token,
@@ -226,9 +228,6 @@ class NetscoutAedConnector(BaseConnector):
             # the call to the 3rd party device or service failed, action result should contain all the error details
             # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
-
-
-        # Now post process the data,  uncomment code as you deem fit
 
         # Add the response into the data section
         action_result.add_data(response)
@@ -323,8 +322,6 @@ class NetscoutAedConnector(BaseConnector):
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
 
         # Now post process the data,  uncomment code as you deem fit
@@ -459,8 +456,12 @@ class NetscoutAedConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_list_inbound_allowed_hosts(self, param):
-        # Implement the handler here
-        # use self.save_progress(...) to send progress messages back to the platform
+        """ This function is used to list inbound allowed hosts
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
@@ -483,29 +484,21 @@ class NetscoutAedConnector(BaseConnector):
         )
 
         if phantom.is_fail(ret_val):
-            # the call to the 3rd party device or service failed, action result should contain all the error details
-            # for now the return is commented out, but after implementation, return from here
             return action_result.get_status()
-
-        # Now post process the data,  uncomment code as you deem fit
+        hosts = response.pop('allowed-hosts')
 
         # Add the response into the data section
         action_result.add_data(response)
+        action_result.update_summary({'num_hosts': len(hosts)})
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
 
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
-
     def _handle_list_inbound_denied_hosts(self, param):
-        # Implement the handler here
-        # use self.save_progress(...) to send progress messages back to the platform
+        """ This function is used to list inbound denied hosts
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
 
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
@@ -523,26 +516,22 @@ class NetscoutAedConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status(phantom.APP_ERROR)
 
-        # Now post process the data,  uncomment code as you deem fit
+        # Add the response into the data section
+        hosts = response.pop('denied-hosts')
 
         # Add the response into the data section
         action_result.add_data(response)
+        action_result.update_summary({'num_hosts': len(hosts)})
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
-
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_block_inbound_host(self, param):
         """ This function is used to add host(s) to the inbound block list
 
         :param param: dictionary of input parameters
+        :param hostadress: host list (required)
+        :param cid: central configuration ID (defaults to null)
+        :param pgid: protection group ID (defaults to null)
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
         """
 
@@ -558,6 +547,7 @@ class NetscoutAedConnector(BaseConnector):
 
         json_data = {}
 
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
         if cid == 'null' and pgid == 'null':
             json_data[pgid] = '-1'
             self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
@@ -585,18 +575,13 @@ class NetscoutAedConnector(BaseConnector):
             return action_result.get_status()
 
         # Add the response into the data section
+        hosts = response.pop('denied-hosts')
+
+        # Add the response into the data section
         action_result.add_data(response)
+        action_result.update_summary({'num_hosts': len(hosts)})
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
-
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS

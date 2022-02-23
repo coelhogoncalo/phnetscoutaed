@@ -11,14 +11,12 @@ import json
 
 # Phantom App imports
 import phantom.app as phantom
-
 import requests
 from bs4 import BeautifulSoup
 # Usage of the consts file is recommended
 from netscoutaed_consts import *
-
-from phantom.base_connector import BaseConnector
 from phantom.action_result import ActionResult
+from phantom.base_connector import BaseConnector
 
 
 class RetVal(tuple):

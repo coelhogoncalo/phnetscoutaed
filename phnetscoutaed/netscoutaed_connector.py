@@ -18,12 +18,10 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-
 class RetVal(tuple):
 
     def __new__(cls, val1, val2=None):
         return tuple.__new__(RetVal, (val1, val2))
-
 
 class NetscoutAedConnector(BaseConnector):
 

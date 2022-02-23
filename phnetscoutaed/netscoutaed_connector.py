@@ -142,7 +142,8 @@ class NetscoutAedConnector(BaseConnector):
             )
 
         # Create a URL to connect to
-        url = self._server_url + endpoint
+        url = self._base_url + endpoint
+        self.save_progress(url)
 
         try:
             r = request_func(
@@ -157,6 +158,9 @@ class NetscoutAedConnector(BaseConnector):
                     phantom.APP_ERROR, "Error Connecting to server. Details: {0}".format(str(e))
                 ), resp_json
             )
+
+        if method == 'delete' and r.status_code == 204:
+            return RetVal(phantom.APP_SUCCESS, resp_json)
 
         return self._process_response(r, action_result)
 
@@ -183,15 +187,13 @@ class NetscoutAedConnector(BaseConnector):
             }
         )
 
-        if response.status_code == "400":
-            self.save_progress("Test Connectivity Failed.")
-            return action_result.get_status(phantom.APP_ERROR)
-
         if phantom.is_fail(ret_val):
             self.save_progress("Test Connectivity Failed.")
             return action_result.get_status(phantom.APP_ERROR)
 
         # Return success
+        action_result.add_data(response)
+
         self.save_progress("Test Connectivity Passed")
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -526,12 +528,13 @@ class NetscoutAedConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_block_inbound_host(self, param):
-        """ This function is used to add host(s) to the inbound block list
+        """ This function is used to add host(s) to the inbound denied host list
 
         :param param: dictionary of input parameters
-        :param hostadress: host list (required)
+        :param host: host list (required)
         :param cid: central configuration ID (defaults to null)
         :param pgid: protection group ID (defaults to null)
+        :param annotation: annotation
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
         """
 
@@ -540,27 +543,32 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        host = param['hostaddress']
+        host = param['host']
         cid = param.get('cid', 'null')
         pgid = param.get('pgid', 'null')
         annotation = param.get('annotation', NETSCOUTAED_DEFAULT_ANNOTATION)
 
+        # Build JSON for the request
         json_data = {}
 
         # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
         if cid == 'null' and pgid == 'null':
-            json_data[pgid] = '-1'
+            json_data["pgid"] = '-1'
             self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
             self.save_progress("Defaulting to global protection group")
 
         elif cid != 'null' and pgid == 'null':
-            json_data[cid] = cid
+            json_data["cid"] = cid
 
         elif cid == 'null' and pgid != 'null':
-            json_data[pgid] = pgid
+            json_data["pgid"] = pgid
 
-        json_data[hostAddress] = hosts
-        json_data[annotation] = annotation
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
 
         # Make rest call
         ret_val, response = self._make_rest_call(
@@ -575,13 +583,77 @@ class NetscoutAedConnector(BaseConnector):
             return action_result.get_status()
 
         # Add the response into the data section
-        hosts = response.pop('denied-hosts')
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'num_hosts': len(hosts)})
+        except:
+            action_result.update_summary({'num_hosts': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+        # Add a dictionary that is made up of the most important values from data into the summary
+        # summary = action_result.update_summary({})
+        # summary['num_data'] = len(action_result['data'])
+
+        # Return success, no need to set the message, only the status
+        # BaseConnector will create a textual message based off of the summary dictionary
+        # return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_unblock_inbound_host(self, param):
+        # Implement the handler here
+        # use self.save_progress(...) to send progress messages back to the platform
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+
+        # Build JSON for the request
+        json_params = {}
+
+        json_params['hostAddress'] = host
+
+        if cid != 'null' and pgid != 'null':
+            return action_result.get_status(phantom.APP_ERROR, "cid and pgid cannot be used together")
+        if cid != 'null':
+            json_params['cid'] = cid
+        if pgid != 'null':
+            json_params['pgid'] = pgid
+
+        #json_params = json.dumps(json_params)
+
+        self.save_progress(json_params)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, method='delete', params=json_params, headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Now post process the data,  uncomment code as you deem fit
 
         # Add the response into the data section
         action_result.add_data(response)
-        action_result.update_summary({'num_hosts': len(hosts)})
 
+        # Add a dictionary that is made up of the most important values from data into the summary
+        # summary = action_result.update_summary({})
+        # summary['num_data'] = len(action_result['data'])
+
+        # Return success, no need to set the message, only the status
+        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
+
+        # For now return Error with a message, in case of success we don't set the message, but use the summary
+        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
@@ -624,6 +696,12 @@ class NetscoutAedConnector(BaseConnector):
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
 
+        if action_id == 'block_inbound_host':
+            ret_val = self._handle_block_inbound_host(param)
+
+        if action_id == 'unblock_inbound_host':
+            ret_val = self._handle_unblock_inbound_host(param)
+
         return ret_val
 
     def initialize(self):
@@ -634,9 +712,9 @@ class NetscoutAedConnector(BaseConnector):
         # get the asset config
         config = self.get_config()
 
-        self._server_url = config[NETSCOUTAED_TA_CONFIG_SERVER_URL].strip("/")
+        self._base_url = config[NETSCOUTAED_TA_CONFIG_SERVER_URL].strip("/")
         self._api_token = config[NETSCOUTAED_TA_CONFIG_API_TOKEN]
-        self._verify_server_cert = config.get(NETSCOUTAED_TA_CONFIG_VERIFY_SSL, False)
+        self._verify_server_cert = config.get(NETSCOUTAED_TA_CONFIG_VERIFY_SSL)
 
         return phantom.APP_SUCCESS
 

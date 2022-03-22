@@ -3,7 +3,7 @@
 
 
 ## General Actions
-test connectivity
+- test connectivity
 
 ## Outbound Connections Actions
 - list allowed ip

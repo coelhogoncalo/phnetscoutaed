@@ -6,11 +6,17 @@
 test connectivity
 
 ## Outbound Connections Actions
-list allowed ip
-list blocked ip
-allow ip
-unallow ip
-block ip
-unblock ip
+- list allowed ip
+- list blocked ip
+- allow host
+- unallow host
+- block host
+- unblock host
 
 ## Inbound Connections Actions
+- list allowed ip
+- list blocked ip
+- allow host
+- unallow host
+- block host
+- unblock host

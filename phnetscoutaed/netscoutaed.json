@@ -11,7 +11,7 @@
     "product_version_regex": ".*",
     "publisher": "Diogo Silva",
     "license": "Copyright (c) Diogo Silva, 2022",
-    "app_version": "1.0.0",
+    "app_version": "2.0.0",
     "utctime_updated": "2022-02-22T11:50:45.577910Z",
     "package_name": "phantom_netscoutaed",
     "main_module": "netscoutaed_connector.py",

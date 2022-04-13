@@ -225,7 +225,7 @@ class NetscoutAedConnector(BaseConnector):
 
         # Add the response into the data section
         action_result.add_data(response)
-        action_result.update_summary({'num_hosts': len(hosts)})
+        action_result.update_summary({'total_objects': len(hosts)})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -256,6 +256,7 @@ class NetscoutAedConnector(BaseConnector):
 
         # Add the response into the data section
         action_result.add_data(response)
+        action_result.add_data(hosts)
         action_result.update_summary({'num_hosts': len(hosts)})
 
         return action_result.set_status(phantom.APP_SUCCESS)
@@ -324,9 +325,20 @@ class NetscoutAedConnector(BaseConnector):
         # Add the response into the data section
         hosts = response.pop('denied-hosts')
 
+        for host in hosts:
+            action_result.add_data(
+                {'hostAddress': host['hostAddress'],
+                'annotation': host['annotation'],
+                'updateTime': host['updateTime'],
+                'pgid': host['pgid'],
+                'cid': host['cid']}
+                )
+            action_result.add_data()
+            pass
+
         # Add the response into the data section
         action_result.add_data(response)
-        action_result.update_summary({'num_hosts': len(hosts)})
+        action_result.update_summary({'total_objects': len(hosts)})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -349,7 +361,7 @@ class NetscoutAedConnector(BaseConnector):
         host = param['host']
         cid = param.get('cid', 'null')
         pgid = param.get('pgid', 'null')
-        annotation = param.get('annotation', NETSCOUTAED_DEFAULT_ANNOTATION)
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
 
         # Build JSON for the request
         json_data = {}
@@ -389,9 +401,9 @@ class NetscoutAedConnector(BaseConnector):
         action_result.add_data(response)
         try:
             hosts = response.pop('hosts')
-            action_result.update_summary({'num_hosts': len(hosts)})
+            action_result.update_summary({'total_objects': len(hosts)})
         except:
-            action_result.update_summary({'num_hosts': '1'})
+            action_result.update_summary({'total_objects': '1'})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 

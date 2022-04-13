@@ -404,8 +404,14 @@ class NetscoutAedConnector(BaseConnector):
         # return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_unblock_inbound_host(self, param):
-        # Implement the handler here
-        # use self.save_progress(...) to send progress messages back to the platform
+        """ This function is used to remove host(s) from the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :param host: host list (required)
+        :param cid: central configuration ID (defaults to null)
+        :param pgid: protection group ID (defaults to null)
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
         self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
@@ -440,8 +446,6 @@ class NetscoutAedConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        # Now post process the data,  uncomment code as you deem fit
-
         # Add the response into the data section
         action_result.add_data(response)
 
@@ -453,9 +457,6 @@ class NetscoutAedConnector(BaseConnector):
         # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
 
-        # For now return Error with a message, in case of success we don't set the message, but use the summary
-        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
-
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -464,23 +465,8 @@ class NetscoutAedConnector(BaseConnector):
 
         self.debug_print("action_id", self.get_action_identifier())
 
-        if action_id == 'block_ip':
-            ret_val = self._handle_block_ip(param)
-
-        if action_id == 'unblock_ip':
-            ret_val = self._handle_unblock_ip(param)
-
-        if action_id == 'allow_ip':
-            ret_val = self._handle_allow_ip(param)
-
-        if action_id == 'disallow_ip':
-            ret_val = self._handle_disallow_ip(param)
-
-        if action_id == 'block_inbound_host':
-            ret_val = self._handle_block_inbound_host(param)
-
-        if action_id == 'unblock_inbound_host':
-            ret_val = self._handle_unblock_inbound_host(param)
+        if action_id == 'test_connectivity':
+            ret_val = self._handle_test_connectivity(param)
 
         if action_id == 'list_outbound_allowed_hosts':
             ret_val = self._handle_list_outbound_allowed_hosts(param)
@@ -493,9 +479,6 @@ class NetscoutAedConnector(BaseConnector):
 
         if action_id == 'list_inbound_denied_hosts':
             ret_val = self._handle_list_inbound_denied_hosts(param)
-
-        if action_id == 'test_connectivity':
-            ret_val = self._handle_test_connectivity(param)
 
         if action_id == 'block_inbound_host':
             ret_val = self._handle_block_inbound_host(param)

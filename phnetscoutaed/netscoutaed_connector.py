@@ -445,6 +445,10 @@ class NetscoutAedConnector(BaseConnector):
         if pgid != 'null':
             json_params['pgid'] = pgid
 
+        # If no cid or pgid is provided the action will default to the global configuration group
+        if cid == 'null' and pgid == 'null':
+            json_params['cid'] = "-1"
+
         self.save_progress(json_params)
 
         # Make rest call

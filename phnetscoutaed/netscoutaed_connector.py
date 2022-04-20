@@ -397,8 +397,8 @@ class NetscoutAedConnector(BaseConnector):
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         # Get the parameters from action
-        target = param.get('target', 'cid')
-        target_value = param.get('target_value', '-1')
+        # target = param.get('target', 'cid')
+        # target_value = param.get('target_value', '-1')
 
         # Parameters:
         # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
@@ -416,9 +416,7 @@ class NetscoutAedConnector(BaseConnector):
         # Build request parameters
         json_params = {}
 
-        json_params[target] = target_value
-        json_params['sort'] = 'updateTime'
-        json_params['direction'] = 'ASC'
+        # json_params[target] = target_value
         json_params['perPage'] = 500
 
         # Make REST call
@@ -433,22 +431,25 @@ class NetscoutAedConnector(BaseConnector):
             return action_result.get_status(phantom.APP_ERROR)
 
         # Add the response into the data section
-        hosts = response.pop('denied-countries')
+        countries = response.pop('denied-countries')
 
-        for host in hosts:
-            action_result.add_data(
-                {
-                    'annotation': host['annotation'],
-                    'cid': host['cid'],
-                    'country': host['country'],
-                    'pgid': host['pgid'],
-                    'updateTime': host['updateTime']
-                }
-            )
+        if len(countries) > 0:
+            for country in countries:
+                action_result.add_data(
+                    {
+                        'annotation': country['annotation'],
+                        'cid': country['cid'],
+                        'country': country['country'],
+                        'pgid': country['pgid'],
+                        'updateTime': country['updateTime']
+                    }
+                )
+        else:
+            action_result.add_data({'message': NETSCOUTAED_MSG_NO_OBJECTS_FOUND})
 
         # Add the response into the data section
         action_result.add_data(response)
-        action_result.update_summary({'total_objects': len(hosts)})
+        action_result.update_summary({'total_objects': len(countries)})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 

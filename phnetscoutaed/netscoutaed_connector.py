@@ -223,6 +223,17 @@ class NetscoutAedConnector(BaseConnector):
 
         hosts = response.pop('allowed-hosts')
 
+        for host in hosts:
+            action_result.add_data(
+                {
+                    'hostAddress': host['hostAddress'],
+                    'annotation': host['annotation'],
+                    'updateTime': host['updateTime'],
+                    'pgid': host['pgid'],
+                    'cid': host['cid']
+                }
+            )
+
         # Add the response into the data section
         action_result.add_data(response)
         action_result.update_summary({'total_objects': len(hosts)})
@@ -254,10 +265,21 @@ class NetscoutAedConnector(BaseConnector):
 
         hosts = response.pop('denied-hosts')
 
+        for host in hosts:
+            action_result.add_data(
+                {
+                    'hostAddress': host['hostAddress'],
+                    'annotation': host['annotation'],
+                    'updateTime': host['updateTime'],
+                    'pgid': host['pgid'],
+                    'cid': host['cid']
+                }
+            )
+
         # Add the response into the data section
         action_result.add_data(response)
         action_result.add_data(hosts)
-        action_result.update_summary({'num_hosts': len(hosts)})
+        action_result.update_summary({'total_objects': len(hosts)})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -293,9 +315,156 @@ class NetscoutAedConnector(BaseConnector):
             return action_result.get_status()
         hosts = response.pop('allowed-hosts')
 
+        for host in hosts:
+            action_result.add_data(
+                {
+                    'hostAddress': host['hostAddress'],
+                    'annotation': host['annotation'],
+                    'updateTime': host['updateTime'],
+                    'pgid': host['pgid'],
+                    'cid': host['cid']
+                }
+            )
+
         # Add the response into the data section
         action_result.add_data(response)
-        action_result.update_summary({'num_hosts': len(hosts)})
+        action_result.update_summary({'total_objects': len(hosts)})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_list_inbound_denied_countries(self, param):
+        """ This function is used to list inbound denied countries.
+        Get the countries on the deny list. By default, 10 countries are returned. To return the countries on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects countries that are globally denied.
+
+        :param param: dictionary of input parameters
+        :param target: selector for the configuration target (protection group or central configuration)
+        :param target_value: target id of either a protection group or central configuration
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Get the parameters from action
+        target = param.get('target', 'cid')
+        target_value = param.get('target_value', '-1')
+
+        # Parameters:
+        # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
+        # pgid – List of ‘,’ delimited protection group IDs. Cannot be used with the cid parameter.
+        # country – List of ‘,’ delimited ISO standardized country code.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page. Default: 10
+        # By default, this page will be sorted in order of country code ASC.
+
+        # Build request parameters
+        json_params = {}
+
+        json_params[target] = target_value
+        json_params['sort'] = 'updateTime'
+        json_params['direction'] = 'ASC'
+        json_params['perPage'] = 500
+
+        # Make REST call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_COUNTRIES, action_result, params=json_params, method='get', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status(phantom.APP_ERROR)
+
+        # Add the response into the data section
+        hosts = response.pop('denied-countries')
+
+        for host in hosts:
+            action_result.add_data(
+                {
+                    'annotation': host['annotation'],
+                    'cid': host['cid'],
+                    'country': host['country'],
+                    'pgid': host['pgid'],
+                    'updateTime': host['updateTime']
+                }
+            )
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        action_result.update_summary({'total_objects': len(hosts)})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_list_inbound_denied_domains(self, param):
+        """ This function is used to list inbound denied domains
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Build request parameters
+        json_params = {}
+
+        # Get the domains on the deny list. By default, 10 domains are returned. To return the domains on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects domains that are globally denied.
+
+        # Parameters:
+        # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
+        # pgid – List of ‘,’ delimited protection group IDs. Cannot be used with the cid parameter.
+        # domain – List of ‘,’ delimited domains.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page. Default: 10
+        # By default, this page will be sorted in order of domain ASC.
+
+        json_params['sort'] = 'updateTime'
+        json_params['direction'] = 'ASC'
+        json_params['perPage'] = 500
+
+        # Make REST call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_DOMAINS, action_result, params=json_params, method='get', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status(phantom.APP_ERROR)
+
+        # Add the response into the data section
+        hosts = response.pop('denied-domains')
+
+        for host in hosts:
+            action_result.add_data(
+                {
+                    'annotation': host['annotation'],
+                    'cid': host['cid'],
+                    'domain': host['domain'],
+                    'pgid': host['pgid'],
+                    'updateTime': host['updateTime']
+                }
+            )
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        action_result.update_summary({'total_objects': len(hosts)})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -311,9 +480,28 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Make rest call
+        # Build request parameters
+        json_params = {}
+
+        # Available parameters:
+        # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
+        # pgid – List of ‘,’ delimited protection group IDs. Cannot be used with the cid parameter.
+        # hostAddress – List of ‘,’ delimited IPv4 host addresses or CIDRs.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page. Default: 10
+
+        json_params['sort'] = 'updateTime'
+        json_params['direction'] = 'ASC'
+        json_params['perPage'] = 500
+
+        # Make REST call
         ret_val, response = self._make_rest_call(
-            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, method='get', headers={
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=json_params, method='get', headers={
                 'X-Arbux-APIToken': self._api_token,
                 'Accept': 'application/json'
             }
@@ -327,14 +515,76 @@ class NetscoutAedConnector(BaseConnector):
 
         for host in hosts:
             action_result.add_data(
-                {'hostAddress': host['hostAddress'],
-                'annotation': host['annotation'],
-                'updateTime': host['updateTime'],
-                'pgid': host['pgid'],
-                'cid': host['cid']}
-                )
-            action_result.add_data()
-            pass
+                {
+                    'hostAddress': host['hostAddress'],
+                    'annotation': host['annotation'],
+                    'updateTime': host['updateTime'],
+                    'pgid': host['pgid'],
+                    'cid': host['cid']
+                }
+            )
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        action_result.update_summary({'total_objects': len(hosts)})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_list_inbound_denied_urls(self, param):
+        """ This function is used to list inbound denied urls
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Build request parameters
+        json_params = {}
+
+        # Available parameters:
+        # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
+        # pgid – List of ‘,’ delimited protection group IDs. Cannot be used with the cid parameter.
+        # hostAddress – List of ‘,’ delimited IPv4 host addresses or CIDRs.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page. Default: 10
+
+        json_params['sort'] = 'updateTime'
+        json_params['direction'] = 'ASC'
+        json_params['perPage'] = 500
+
+        # Make REST call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=json_params, method='get', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status(phantom.APP_ERROR)
+
+        # Add the response into the data section
+        hosts = response.pop('denied-hosts')
+
+        for host in hosts:
+            action_result.add_data(
+                {
+                    'hostAddress': host['hostAddress'],
+                    'annotation': host['annotation'],
+                    'updateTime': host['updateTime'],
+                    'pgid': host['pgid'],
+                    'cid': host['cid']
+                }
+            )
 
         # Add the response into the data section
         action_result.add_data(response)
@@ -407,14 +657,6 @@ class NetscoutAedConnector(BaseConnector):
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
-
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
-        # return action_result.set_status(phantom.APP_SUCCESS)
-
     def _handle_unblock_inbound_host(self, param):
         """ This function is used to remove host(s) from the inbound denied host list
 
@@ -466,8 +708,8 @@ class NetscoutAedConnector(BaseConnector):
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary['num_data'] = len(action_result['data'])
+        summary = action_result.update_summary({})
+        summary['total_objects'] = len(action_result['data'])
 
         # Return success, no need to set the message, only the status
         # BaseConnector will create a textual message based off of the summary dictionary
@@ -585,7 +827,6 @@ def main():
         print(json.dumps(json.loads(ret_val), indent=4))
 
     exit(0)
-
 
 if __name__ == '__main__':
     main()

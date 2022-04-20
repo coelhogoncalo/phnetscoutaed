@@ -322,6 +322,7 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_inbound_allowed_hosts(self, param):
         """ This function is used to list inbound allowed hosts
+        Get the hosts on the allow list. By default, 10 hosts are returned. To return hosts on the allow list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects hosts that are globally allowed.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
@@ -332,17 +333,27 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Access action parameters passed in the 'param' dictionary
+        # Parameters:
+        # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
+        # pgid – List of ‘,’ delimited protection group IDs. Cannot be used with the cid parameter.
+        # hostAddress – List of ‘,’ delimited IPv4 or IPv6 host addresses or CIDRs.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page. Default: 10
+        # By default, this page is sorted by hostAddress string ASC for each protocol, with IPv4 hosts listed before IPv6 hosts.
 
-        # Required values can be accessed directly
-        # required_parameter = param['required_parameter']
+        # Build request parameters
+        json_params = {}
 
-        # Optional values should use the .get() function
-        # optional_parameter = param.get('optional_parameter', 'default_value')
+        json_params['perPage'] = 500
 
         # make rest call
         ret_val, response = self._make_rest_call(
-            NETSCOUTAED_REST_INBOUND_ALLOWED_HOSTS, action_result, params=None, method='get', headers={
+            NETSCOUTAED_REST_INBOUND_ALLOWED_HOSTS, action_result, params=json_params, method='get', headers={
                 'X-Arbux-APIToken': self._api_token,
                 'Accept': 'application/json'
             }
@@ -352,16 +363,19 @@ class NetscoutAedConnector(BaseConnector):
             return action_result.get_status()
         hosts = response.pop('allowed-hosts')
 
-        for host in hosts:
-            action_result.add_data(
-                {
-                    'hostAddress': host['hostAddress'],
-                    'annotation': host['annotation'],
-                    'updateTime': host['updateTime'],
-                    'pgid': host['pgid'],
-                    'cid': host['cid']
-                }
-            )
+        if len(hosts) > 0:
+            for host in hosts:
+                action_result.add_data(
+                    {
+                        'annotation': host['annotation'],
+                        'cid': host['cid'],
+                        'hostAddress': host['hostAddress'],
+                        'pgid': host['pgid'],
+                        'updateTime': host['updateTime']
+                    }
+                )
+        else:
+            action_result.add_data({'message': NETSCOUTAED_MSG_NO_HOSTS_FOUND})
 
         # Add the response into the data section
         action_result.add_data(response)
@@ -374,8 +388,6 @@ class NetscoutAedConnector(BaseConnector):
         Get the countries on the deny list. By default, 10 countries are returned. To return the countries on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects countries that are globally denied.
 
         :param param: dictionary of input parameters
-        :param target: selector for the configuration target (protection group or central configuration)
-        :param target_value: target id of either a protection group or central configuration
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
         """
 
@@ -633,14 +645,10 @@ class NetscoutAedConnector(BaseConnector):
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
-    def _handle_block_inbound_host(self, param):
+    def _handle_allow_outbound_hosts(self, param):
         """ This function is used to add host(s) to the inbound denied host list
 
         :param param: dictionary of input parameters
-        :param host: host list (required)
-        :param cid: central configuration ID (defaults to null)
-        :param pgid: protection group ID (defaults to null)
-        :param annotation: annotation
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
         """
 
@@ -698,7 +706,495 @@ class NetscoutAedConnector(BaseConnector):
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
-    def _handle_unblock_inbound_host(self, param):
+    def _handle_disallow_outbound_hosts(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_block_outbound_hosts(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_unblock_outbound_hosts(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_block_inbound_countries(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_unblock_inbound_countries(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_block_inbound_domains(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_unblock_inbound_domains(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_block_inbound_hosts(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_unblock_inbound_hosts(self, param):
         """ This function is used to remove host(s) from the inbound denied host list
 
         :param param: dictionary of input parameters
@@ -754,6 +1250,128 @@ class NetscoutAedConnector(BaseConnector):
 
         # Return success, no need to set the message, only the status
         # BaseConnector will create a textual message based off of the summary dictionary
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_block_inbound_urls(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_unblock_inbound_urls(self, param):
+        """ This function is used to add host(s) to the inbound denied host list
+
+        :param param: dictionary of input parameters
+        :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
+        """
+
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        host = param['host']
+        cid = param.get('cid', 'null')
+        pgid = param.get('pgid', 'null')
+        annotation = param.get('annotation', NETSCOUTAED_MSG_DEFAULT_ANNOTATION)
+
+        # Build JSON for the request
+        json_data = {}
+
+        # If both cid and pgid are not defined the configuration will default to the global protection group (pgid = -1)
+        if cid == 'null' and pgid == 'null':
+            json_data["pgid"] = '-1'
+            self.save_progress("No central configuration id (cid) or protection group (pgid) was selected")
+            self.save_progress("Defaulting to global protection group")
+
+        elif cid != 'null' and pgid == 'null':
+            json_data["cid"] = cid
+
+        elif cid == 'null' and pgid != 'null':
+            json_data["pgid"] = pgid
+
+        json_data["hostAddress"] = host.split(",")
+        json_data["annotation"] = annotation
+
+        json_data = json.dumps(json_data).replace("'", '"')
+
+        self.save_progress(json_data)
+
+        # Make rest call
+        ret_val, response = self._make_rest_call(
+            NETSCOUTAED_REST_INBOUND_DENIED_HOSTS, action_result, params=None, data=json_data, method='post', headers={
+                'X-Arbux-APIToken': self._api_token,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        # Add the response into the data section
+        action_result.add_data(response)
+        try:
+            hosts = response.pop('hosts')
+            action_result.update_summary({'total_objects': len(hosts)})
+        except:
+            action_result.update_summary({'total_objects': '1'})
+
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def handle_action(self, param):

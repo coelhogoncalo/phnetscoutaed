@@ -223,16 +223,17 @@ class NetscoutAedConnector(BaseConnector):
 
         hosts = response.pop('allowed-hosts')
 
-        for host in hosts:
-            action_result.add_data(
-                {
-                    'hostAddress': host['hostAddress'],
-                    'annotation': host['annotation'],
-                    'updateTime': host['updateTime'],
-                    'pgid': host['pgid'],
-                    'cid': host['cid']
-                }
-            )
+        if len(hosts) > 0:
+            for host in hosts:
+                action_result.add_data(
+                    {
+                        'annotation': host['annotation'],
+                        'hostAddress': host['hostAddress'],
+                        'updateTime': host['updateTime']
+                    }
+                )
+        else:
+            action_result.add_data({'message': NETSCOUTAED_MSG_NO_HOSTS_FOUND})
 
         # Add the response into the data section
         action_result.add_data(response)

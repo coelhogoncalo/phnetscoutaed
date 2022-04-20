@@ -458,7 +458,8 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_inbound_denied_domains(self, param):
         """ This function is used to list inbound denied domains
-        Get the domains on the deny list. By default, 10 domains are returned. To return the domains on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects domains that are globally denied.
+        Get the domains on the deny list. By default, 10 domains are returned. To return the domains on the deny list for specific protection
+        groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects domains that are globally denied.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)

@@ -316,7 +316,6 @@ class NetscoutAedConnector(BaseConnector):
 
         # Add the response into the data section
         action_result.add_data(response)
-        action_result.add_data(hosts)
         action_result.update_summary({'total_objects': len(hosts)})
 
         return action_result.set_status(phantom.APP_SUCCESS)

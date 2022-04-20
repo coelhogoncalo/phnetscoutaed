@@ -199,6 +199,8 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_outbound_allowed_hosts(self, param):
         """ This function is used to list outbound allowed hosts.
+        Get the hosts on the outbound allow list. By default, 10 hosts are returned.
+        The Accept header can be “application/json” or “text/csv”.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
@@ -210,9 +212,25 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
+        # Parameters:
+        # hostAddress – List of ‘,’ delimited IPv4 host addresses or CIDRs.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page.
+        # By default, this page will be sorted in order of hostAddress string ASC.
+
+        # Build request parameters
+        json_params = {}
+
+        json_params['perPage'] = 500
+
         # Make rest call
         ret_val, response = self._make_rest_call(
-            NETSCOUTAED_REST_OUTBOUND_ALLOWED_HOSTS, action_result, params=None, method='get', headers={
+            NETSCOUTAED_REST_OUTBOUND_ALLOWED_HOSTS, action_result, params=json_params, method='get', headers={
                 'X-Arbux-APIToken': self._api_token,
                 'Accept': 'application/json'
             }

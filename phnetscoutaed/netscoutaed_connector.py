@@ -322,7 +322,8 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_inbound_allowed_hosts(self, param):
         """ This function is used to list inbound allowed hosts
-        Get the hosts on the allow list. By default, 10 hosts are returned. To return hosts on the allow list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects hosts that are globally allowed.
+        Get the hosts on the allow list. By default, 10 hosts are returned. To return hosts on the allow list for specific protection groups,
+        specify a list of protection group IDs or central configuration IDs. An ID of -1 selects hosts that are globally allowed.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
@@ -385,7 +386,9 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_inbound_denied_countries(self, param):
         """ This function is used to list inbound denied countries.
-        Get the countries on the deny list. By default, 10 countries are returned. To return the countries on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects countries that are globally denied.
+        Get the countries on the deny list. By default, 10 countries are returned. To return the countries on the deny list for specific
+        protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects countries that are
+        globally denied.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)

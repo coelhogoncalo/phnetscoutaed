@@ -70,22 +70,45 @@
             "parameters": {},
             "output": [
                 {
-                    "data_path": "action_result.status",
+                    "data_path": "action_result.data.*.hostAddress",
                     "data_type": "string",
-                    "column_name": "status",
+                    "column_name": "hostAddress",
                     "column_order": 0
                 },
                 {
+                    "data_path": "action_result.data.*.annotation",
+                    "data_type": "string",
+                    "column_name": "annotation",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.updateTime",
+                    "data_type": "numeric",
+                    "column_name": "updateTime",
+                    "column_order": 2
+                },
+                {
                     "data_path": "action_result.message",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "column_name": "message",
+                    "column_order": 3
                 },
                 {
                     "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "column_name": "total_objects"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
                     "data_type": "numeric"
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "List of outbound allowed hosts"
+
             },
             "versions": "EQ(*)"
         },

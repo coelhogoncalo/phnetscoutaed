@@ -261,6 +261,8 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_outbound_denied_hosts(self, param):
         """ This function is used to list outbound denied hosts.
+        Get the hosts on the outbound deny list. By default, 10 hosts are returned.
+        The Accept header can be “application/json” or “text/csv”.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
@@ -270,6 +272,22 @@ class NetscoutAedConnector(BaseConnector):
 
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Parameters:
+        # hostAddress – List of ‘,’ delimited IPv4 host addresses or CIDRs.
+        # updateTime – List of ‘,’ delimited time last updated/set.
+        # q – List of ‘+’ delimited search strings.
+        # select – List of ‘,’ delimited filter strings.
+        # sort – Key used to sort results.
+        # direction – The direction in which results are sorted (ASC or DESC).
+        # page – The page of the results to return.
+        # perPage – The number of results returned per page.
+        # By default, this page will be sorted in order of hostAddress string ASC.
+
+        # Build request parameters
+        json_params = {}
+
+        json_params['perPage'] = 500
 
         # Make rest call
         ret_val, response = self._make_rest_call(
@@ -284,16 +302,17 @@ class NetscoutAedConnector(BaseConnector):
 
         hosts = response.pop('denied-hosts')
 
-        for host in hosts:
-            action_result.add_data(
-                {
-                    'hostAddress': host['hostAddress'],
-                    'annotation': host['annotation'],
-                    'updateTime': host['updateTime'],
-                    'pgid': host['pgid'],
-                    'cid': host['cid']
-                }
-            )
+        if len(hosts) > 0:
+            for host in hosts:
+                action_result.add_data(
+                    {
+                        'hostAddress': host['hostAddress'],
+                        'annotation': host['annotation'],
+                        'updateTime': host['updateTime']
+                    }
+                )
+        else:
+            action_result.add_data({'message': NETSCOUTAED_MSG_NO_HOSTS_FOUND})
 
         # Add the response into the data section
         action_result.add_data(response)

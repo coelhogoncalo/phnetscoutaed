@@ -405,6 +405,7 @@ class NetscoutAedConnector(BaseConnector):
 
     def _handle_list_inbound_denied_domains(self, param):
         """ This function is used to list inbound denied domains
+        Get the domains on the deny list. By default, 10 domains are returned. To return the domains on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects domains that are globally denied.
 
         :param param: dictionary of input parameters
         :return: status phantom.APP_SUCCESS/phantom.APP_ERROR (along with appropriate message)
@@ -415,10 +416,9 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        # Build request parameters
-        json_params = {}
-
-        # Get the domains on the deny list. By default, 10 domains are returned. To return the domains on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects domains that are globally denied.
+        # Get the parameters from action
+        target = param.get('target', 'cid')
+        target_value = param.get('target_value', '-1')
 
         # Parameters:
         # cid – List of ‘,’ delimited central configuration IDs. Cannot be used with the pgid parameter.
@@ -433,6 +433,10 @@ class NetscoutAedConnector(BaseConnector):
         # perPage – The number of results returned per page. Default: 10
         # By default, this page will be sorted in order of domain ASC.
 
+        # Build request parameters
+        json_params = {}
+
+        json_params[target] = target_value
         json_params['sort'] = 'updateTime'
         json_params['direction'] = 'ASC'
         json_params['perPage'] = 500

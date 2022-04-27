@@ -350,6 +350,120 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "block inbound hosts",
+            "identifier": "block_inbound_hosts",
+            "description": "Add host(s) to the inbound denied host list",
+            "verbose": "Adds single IPv4 or IPv6 host address or CIDR or a comma-separated list of host addresses or CIDRs to the inbound denied host list",
+            "type": "contain",
+            "read_only": false,
+            "parameters": {
+                "host": {
+                    "description": "Host to add to the inbound denied host list",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 0,
+                    "name": "host",
+                    "id": 1,
+                    "param_name": "host"
+                },
+                "cid": {
+                    "description": "Central configuration ID",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 1,
+                    "name": "cid",
+                    "id": 2,
+                    "param_name": "cid"
+                },
+                "pgid": {
+                    "description": "Protection group ID",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 2,
+                    "name": "pgid",
+                    "id": 3,
+                    "param_name": "pgid"
+                },
+                "annotation": {
+                    "description": "Annotation",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 3,
+                    "name": "annotation",
+                    "id": 4,
+                    "param_name": "annotation"
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.host",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "host",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.cid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "cid",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.pgid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "pgid",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.annotation",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "annotation",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip3_dependencies": {

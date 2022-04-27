@@ -1387,6 +1387,7 @@ class NetscoutAedConnector(BaseConnector):
 
         self.debug_print("action_id", self.get_action_identifier())
 
+        # Investigate Actions
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
 
@@ -1399,14 +1400,54 @@ class NetscoutAedConnector(BaseConnector):
         if action_id == 'list_inbound_allowed_hosts':
             ret_val = self._handle_list_inbound_allowed_hosts(param)
 
+        if action_id == 'list_inbound_denied_countries':
+            ret_val = self._handle_list_inbound_denied_countries(param)
+
+        if action_id == 'list_inbound_denied_domains':
+            ret_val = self._handle_list_inbound_denied_domains(param)
+
         if action_id == 'list_inbound_denied_hosts':
             ret_val = self._handle_list_inbound_denied_hosts(param)
 
-        if action_id == 'block_inbound_host':
-            ret_val = self._handle_block_inbound_host(param)
+        if action_id == 'list_inbound_denied_urls':
+            ret_val = self._handle_list_inbound_denied_urls(param)
 
-        if action_id == 'unblock_inbound_host':
-            ret_val = self._handle_unblock_inbound_host(param)
+        # Contain and Correct Actions
+        if action_id == 'allow_outbound_hosts':
+            ret_val = self._handle_allow_outbound_hosts(param)
+
+        if action_id == 'disallow_outbound_hosts':
+            ret_val = self._handle_disallow_outbound_hosts(param)
+
+        if action_id == 'block_outbound_hosts':
+            ret_val = self._handle_block_outbound_hosts(param)
+
+        if action_id == 'unblock_outbound_hosts':
+            ret_val = self._handle_unblock_outbound_hosts(param)
+
+        if action_id == 'block_inbound_countries':
+            ret_val = self._handle_block_inbound_countries(param)
+
+        if action_id == 'unblock_inbound_countries':
+            ret_val = self._handle_unblock_inbound_countries(param)
+
+        if action_id == 'block_inbound_domains':
+            ret_val = self._handle_block_inbound_domains(param)
+
+        if action_id == 'unblock_inbound_domains':
+            ret_val = self._handle_unblock_inbound_domains(param)
+
+        if action_id == 'block_inbound_hosts':
+            ret_val = self._handle_block_inbound_hosts(param)
+
+        if action_id == 'unblock_inbound_hosts':
+            ret_val = self._handle_unblock_inbound_hosts(param)
+
+        if action_id == 'block_inbound_urls':
+            ret_val = self._handle_block_inbound_urls(param)
+
+        if action_id == 'unblock_inbound_urls':
+            ret_val = self._handle_unblock_inbound_urls(param)
 
         return ret_val
 

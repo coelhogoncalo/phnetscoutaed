@@ -845,20 +845,20 @@
             "read_only": false,
             "parameters": {
                 "host": {
-                    "description": "Host to add to the inbound denied host list",
+                    "description": "A single IPv4 or IPv6 host address or CIDR or a comma-separated list of host addresses or CIDRs.",
                     "data_type": "string",
-                    "required": false,
+                    "required": true,
                     "primary": false,
                     "contains": [],
                     "value_list": [],
                     "default": "",
                     "order": 0,
-                    "name": "host",
+                    "name": "Host",
                     "id": 1,
                     "param_name": "host"
                 },
                 "cid": {
-                    "description": "Central configuration ID",
+                    "description": "A specific central configuration ID or -1 for global. Cannot be used with the pgid parameter.",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
@@ -871,7 +871,7 @@
                     "param_name": "cid"
                 },
                 "pgid": {
-                    "description": "Protection group ID",
+                    "description": "A single protection group ID (pgid), -1 for global, or a comma-separated list of pgids. Cannot be used with the cid parameter.",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
@@ -884,7 +884,7 @@
                     "param_name": "pgid"
                 },
                 "annotation": {
-                    "description": "Annotation",
+                    "description": "A single description that applies to all of the specified hosts or a comma-separated list of descriptions, each of which applies to a specific host.",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
@@ -892,7 +892,7 @@
                     "value_list": [],
                     "default": "",
                     "order": 3,
-                    "name": "annotation",
+                    "name": "Annotation",
                     "id": 4,
                     "param_name": "annotation"
                 }
@@ -902,7 +902,7 @@
                     "data_path": "action_result.parameter.host",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "host",
+                    "column_name": "Host",
                     "column_order": 0
                 },
                 {
@@ -923,14 +923,21 @@
                     "data_path": "action_result.parameter.annotation",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "annotation",
+                    "column_name": "Annotation",
                     "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.updateTime",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "Update Time",
+                    "column_order": 4
                 },
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "status",
-                    "column_order": 4
+                    "column_order": 5
                 },
                 {
                     "data_path": "action_result.message",
@@ -946,7 +953,10 @@
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 6,
+                "height": 10,
+                "title": "Hosts added to the inbound deny list"
             },
             "versions": "EQ(*)"
         },

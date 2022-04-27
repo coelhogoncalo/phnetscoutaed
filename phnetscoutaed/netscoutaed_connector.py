@@ -162,6 +162,9 @@ class NetscoutAedConnector(BaseConnector):
         if method == 'delete' and r.status_code == 204:
             return RetVal(phantom.APP_SUCCESS, resp_json)
 
+        if method == 'post' and r.status_code == 201:
+            return RetVal(phantom.APP_SUCCESS, resp_json)
+
         return self._process_response(r, action_result)
 
     def _handle_test_connectivity(self, param):

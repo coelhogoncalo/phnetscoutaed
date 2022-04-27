@@ -63,7 +63,7 @@
         {
             "action": "list outbound allowed hosts",
             "identifier": "list_outbound_allowed_hosts",
-            "description": "List all outbound allowed hosts",
+            "description": "Get the hosts on the outbound allow list",
             "verbose": "",
             "type": "investigate",
             "read_only": true,
@@ -107,15 +107,290 @@
                 "type": "table",
                 "width": 5,
                 "height": 10,
-                "title": "List of outbound allowed hosts"
+                "title": "Hosts on the outbound allow list"
 
             },
             "versions": "EQ(*)"
         },
         {
-            "action": "unblock inbound hosts",
-            "identifier": "unblock_inbound_host",
-            "description": "Unblock inbound host",
+            "action": "list outbound denied hosts",
+            "identifier": "list_outbound_denied_hosts",
+            "description": "Get the hosts on the outbound deny list",
+            "verbose": "",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [
+                {
+                    "data_path": "action_result.data.*.hostAddress",
+                    "data_type": "string",
+                    "column_name": "hostAddress",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.annotation",
+                    "data_type": "string",
+                    "column_name": "annotation",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.updateTime",
+                    "data_type": "numeric",
+                    "column_name": "updateTime",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "message",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "column_name": "total_objects"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "Hosts on the outbound deny list"
+
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list inbound allowed hosts",
+            "identifier": "list_inbound_allowed_hosts",
+            "description": "Get the hosts on the inbound allow list",
+            "verbose": "By default, 10 hosts are returned. To return hosts on the allow list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects hosts that are globally allowed.",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [
+                {
+                    "data_path": "action_result.data.*.annotation",
+                    "data_type": "string",
+                    "column_name": "annotation",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.cid",
+                    "data_type": "string",
+                    "column_name": "cid",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.hostAddress",
+                    "data_type": "string",
+                    "column_name": "hostAddress",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.pgid",
+                    "data_type": "string",
+                    "column_name": "pgid",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.data.*.updateTime",
+                    "data_type": "numeric",
+                    "column_name": "updateTime",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "message"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "column_name": "total_objects"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "Hosts on the inbound allow list"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list inbound denied countries",
+            "identifier": "list_inbound_denied_countries",
+            "description": "Get the countries on the inbound deny list",
+            "verbose": "By default, 10 countries are returned. To return the countries on the deny list for specific protection groups, specify a list of protection group IDs or central configuration IDs. An ID of -1 selects countries that are globally denied.",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [
+                {
+                    "data_path": "action_result.data.*.annotation",
+                    "data_type": "string",
+                    "column_name": "annotation",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.cid",
+                    "data_type": "string",
+                    "column_name": "cid",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.country",
+                    "data_type": "string",
+                    "column_name": "country",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.pgid",
+                    "data_type": "string",
+                    "column_name": "pgid",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.data.*.updateTime",
+                    "data_type": "numeric",
+                    "column_name": "updateTime",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string",
+                    "column_name": "message"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "column_name": "total_objects"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "Countries on the inbound deny list"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list inbound denied domains",
+            "identifier": "list_inbound_denied_domains",
+            "description": "List inbound denied domains",
+            "verbose": "",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list inbound denied hosts",
+            "identifier": "list_inbound_denied_hosts",
+            "description": "List inbound denied hosts",
+            "verbose": "",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "list inbound denied urls",
+            "identifier": "list_inbound_denied_urls",
+            "description": "List inbound denied urls",
+            "verbose": "",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {},
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "allow outbound hosts",
+            "identifier": "allow_outbound_hosts",
+            "description": "allow outbound hosts",
             "verbose": "",
             "type": "correct",
             "read_only": false,
@@ -168,13 +443,35 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "list blocked hosts",
-            "identifier": "list_blocked_hosts",
-            "description": "List blocked hosts",
+            "action": "disallow outbound hosts",
+            "identifier": "disallow_outbound_hosts",
+            "description": "disallow outbound hosts",
             "verbose": "",
-            "type": "investigate",
-            "read_only": true,
-            "parameters": {},
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
             "output": [
                 {
                     "data_path": "action_result.status",
@@ -201,13 +498,35 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "list inbound allowed hosts",
-            "identifier": "list_inbound_allowed_hosts",
-            "description": "List inbound allowed hosts",
+            "action": "block outbound hosts",
+            "identifier": "block_outbound_hosts",
+            "description": "block outbound hosts",
             "verbose": "",
-            "type": "investigate",
-            "read_only": true,
-            "parameters": {},
+            "type": "contain",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
             "output": [
                 {
                     "data_path": "action_result.status",
@@ -234,13 +553,35 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "list inbound denied countries",
-            "identifier": "list_inbound_denied_countries",
-            "description": "List inbound denied countries",
+            "action": "unblock outbound hosts",
+            "identifier": "unblock_outbound_hosts",
+            "description": "unblock outbound hosts",
             "verbose": "",
-            "type": "generic",
-            "read_only": true,
-            "parameters": {},
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
             "output": [
                 {
                     "data_path": "action_result.status",
@@ -249,32 +590,12 @@
                     "column_order": 0
                 },
                 {
-                    "data_path": "action_result.data.*.country",
-                    "data_type": "string",
-                    "column_name": "country",
-                    "column_order": 1
-                },
-                {
-                    "data_path": "action_result.data.*.annotation",
-                    "data_type": "string",
-                    "column_name": "annotation",
-                    "column_order": 2
-                },
-                {
-                    "data_path": "action_result.data.*.updateTime",
-                    "data_type": "numeric",
-                    "column_name": "updateTime",
-                    "column_order": 3
-                },
-                {
                     "data_path": "action_result.message",
-                    "data_type": "string",
-                    "column_name": "message"
+                    "data_type": "string"
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric",
-                    "column_name": "total_objects"
+                    "data_type": "numeric"
                 },
                 {
                     "data_path": "summary.total_objects_successful",
@@ -287,13 +608,35 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "list inbound denied hosts",
-            "identifier": "list_inbound_denied_hosts",
-            "description": "List inbound denied hosts",
+            "action": "block inbound countries",
+            "identifier": "block_inbound_countries",
+            "description": "block inbound countries",
             "verbose": "",
-            "type": "investigate",
-            "read_only": true,
-            "parameters": {},
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
             "output": [
                 {
                     "data_path": "action_result.status",
@@ -302,44 +645,177 @@
                     "column_order": 0
                 },
                 {
-                    "data_path": "action_result.data.*.hostAddress",
-                    "data_type": "string",
-                    "column_name": "hostAddress",
-                    "column_order": 1
-                },
-                {
-                    "data_path": "action_result.data.*.annotation",
-                    "data_type": "string",
-                    "column_name": "annotation",
-                    "column_order": 2
-                },
-                {
-                    "data_path": "action_result.data.*.updateTime",
-                    "data_type": "numeric",
-                    "column_name": "updateTime",
-                    "column_order": 3
-                },
-                {
-                    "data_path": "action_result.data.*.pgid",
-                    "data_type": "numeric",
-                    "column_name": "pgid",
-                    "column_order": 4
-                },
-                {
-                    "data_path": "action_result.data.*.cid",
-                    "data_type": "numeric",
-                    "column_name": "cid",
-                    "column_order": 5
-                },
-                {
                     "data_path": "action_result.message",
-                    "data_type": "string",
-                    "column_name": "message"
+                    "data_type": "string"
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric",
-                    "column_name": "total_objects"
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock inbound countries",
+            "identifier": "unblock_inbound_countries",
+            "description": "Unblock inbound countries",
+            "verbose": "",
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "block inbound domains",
+            "identifier": "block_inbound_domains",
+            "description": "block inbound domains",
+            "verbose": "",
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock inbound domains",
+            "identifier": "unblock_inbound_domains",
+            "description": "Unblock inbound domains",
+            "verbose": "",
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
                 },
                 {
                     "data_path": "summary.total_objects_successful",
@@ -446,6 +922,230 @@
                     "data_type": "string",
                     "column_name": "status",
                     "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock inbound hosts",
+            "identifier": "unblock_inbound_host",
+            "description": "Unblock inbound host",
+            "verbose": "",
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "block inbound urls",
+            "identifier": "block_inbound_urls",
+            "description": "Add host(s) to the inbound denied host list",
+            "verbose": "Adds single IPv4 or IPv6 host address or CIDR or a comma-separated list of host addresses or CIDRs to the inbound denied host list",
+            "type": "contain",
+            "read_only": false,
+            "parameters": {
+                "host": {
+                    "description": "Host to add to the inbound denied host list",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 0,
+                    "name": "host",
+                    "id": 1,
+                    "param_name": "host"
+                },
+                "cid": {
+                    "description": "Central configuration ID",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 1,
+                    "name": "cid",
+                    "id": 2,
+                    "param_name": "cid"
+                },
+                "pgid": {
+                    "description": "Protection group ID",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 2,
+                    "name": "pgid",
+                    "id": 3,
+                    "param_name": "pgid"
+                },
+                "annotation": {
+                    "description": "Annotation",
+                    "data_type": "string",
+                    "required": false,
+                    "primary": false,
+                    "contains": [],
+                    "value_list": [],
+                    "default": "",
+                    "order": 3,
+                    "name": "annotation",
+                    "id": 4,
+                    "param_name": "annotation"
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.host",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "host",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.cid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "cid",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.pgid",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "pgid",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.annotation",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "annotation",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "unblock inbound urls",
+            "identifier": "unblock_inbound_urls",
+            "description": "Unblock inbound urls",
+            "verbose": "",
+            "type": "correct",
+            "read_only": false,
+            "parameters": {
+                "host":{
+                    "description": "List inbound denied hosts to be unblocked",
+                    "data_type": "string",
+                    "required": true,
+                    "allow_list": true,
+                    "order": 0
+                },
+                "cid": {
+                    "description": "Central configuration id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 1
+                },
+                "pgid": {
+                    "description": "Protection group id",
+                    "data_type": "string",
+                    "required": false,
+                    "allow_list": true,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.message",

@@ -317,7 +317,10 @@
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "Domains on the inbound denied list"
             },
             "versions": "EQ(*)"
         },
@@ -350,7 +353,10 @@
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "Hosts on the inbound denied list"
             },
             "versions": "EQ(*)"
         },
@@ -383,7 +389,10 @@
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "URLs on the inbound denied list"
             },
             "versions": "EQ(*)"
         },
@@ -612,7 +621,7 @@
             "identifier": "block_inbound_countries",
             "description": "block inbound countries",
             "verbose": "",
-            "type": "correct",
+            "type": "contain",
             "read_only": false,
             "parameters": {
                 "host":{
@@ -722,7 +731,7 @@
             "identifier": "block_inbound_domains",
             "description": "block inbound domains",
             "verbose": "",
-            "type": "correct",
+            "type": "contain",
             "read_only": false,
             "parameters": {
                 "host":{
@@ -999,26 +1008,26 @@
         {
             "action": "block inbound urls",
             "identifier": "block_inbound_urls",
-            "description": "Add host(s) to the inbound denied host list",
+            "description": "Add one or more URLs to the inbound deny list by pgid or cid",
             "verbose": "Adds single IPv4 or IPv6 host address or CIDR or a comma-separated list of host addresses or CIDRs to the inbound denied host list",
             "type": "contain",
             "read_only": false,
             "parameters": {
-                "host": {
-                    "description": "Host to add to the inbound denied host list",
+                "url": {
+                    "description": "URL or a comma-separated list of URLs",
                     "data_type": "string",
-                    "required": false,
+                    "required": true,
                     "primary": false,
                     "contains": [],
                     "value_list": [],
                     "default": "",
                     "order": 0,
-                    "name": "host",
+                    "name": "URL",
                     "id": 1,
-                    "param_name": "host"
+                    "param_name": "url"
                 },
                 "cid": {
-                    "description": "Central configuration ID",
+                    "description": "A specific central configuration ID or -1 for global. Cannot be used with the pgid parameter.",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
@@ -1031,7 +1040,7 @@
                     "param_name": "cid"
                 },
                 "pgid": {
-                    "description": "Protection group ID",
+                    "description": "A specific protection group ID or -1 for global. Cannot be used with the cid parameter.",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
@@ -1044,7 +1053,7 @@
                     "param_name": "pgid"
                 },
                 "annotation": {
-                    "description": "Annotation",
+                    "description": "A message to associate with each URL that you add to the deny list.",
                     "data_type": "string",
                     "required": false,
                     "primary": false,
@@ -1059,10 +1068,10 @@
             },
             "output": [
                 {
-                    "data_path": "action_result.parameter.host",
+                    "data_path": "action_result.parameter.url",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "host",
+                    "column_name": "URL",
                     "column_order": 0
                 },
                 {
@@ -1083,14 +1092,21 @@
                     "data_path": "action_result.parameter.annotation",
                     "data_type": "string",
                     "contains": [],
-                    "column_name": "annotation",
+                    "column_name": "Annotation",
                     "column_order": 3
+                },
+                {
+                    "data_path": "action_result.parameter.updateTime",
+                    "data_type": "string",
+                    "contains": [],
+                    "column_name": "Update Time",
+                    "column_order": 4
                 },
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "status",
-                    "column_order": 4
+                    "column_order": 5
                 },
                 {
                     "data_path": "action_result.message",
@@ -1106,37 +1122,40 @@
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 6,
+                "height": 10,
+                "title": "URLs added to the inbound deny list"
             },
             "versions": "EQ(*)"
         },
         {
             "action": "unblock inbound urls",
             "identifier": "unblock_inbound_urls",
-            "description": "Unblock inbound urls",
+            "description": "Remove one or more URLs from the inbound deny list by pgid or cid",
             "verbose": "",
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
-                    "description": "List inbound denied hosts to be unblocked",
+                "url":{
+                    "description": "URL or a comma-separated list of URLs.",
                     "data_type": "string",
                     "required": true,
                     "allow_list": true,
                     "order": 0
                 },
                 "cid": {
-                    "description": "Central configuration id",
+                    "description": "A specific central configuration ID or -1 for global. Cannot be used with the pgid parameter.",
                     "data_type": "string",
                     "required": false,
-                    "allow_list": true,
+                    "allow_list": false,
                     "order": 1
                 },
                 "pgid": {
-                    "description": "Protection group id",
+                    "description": "A specific protection group ID or -1 for global. Cannot be used with the cid parameter.",
                     "data_type": "string",
                     "required": false,
-                    "allow_list": true,
+                    "allow_list": false,
                     "order": 2
                 }
             },
@@ -1161,7 +1180,10 @@
                 }
             ],
             "render": {
-                "type": "table"
+                "type": "table",
+                "width": 5,
+                "height": 10,
+                "title": "URL(s) removed from the inbound denied URL list"
             },
             "versions": "EQ(*)"
         }

@@ -1,5 +1,7 @@
 # Netscout Arbor Edge Defense App for Splunk SOAR
 
+[![Linting](https://github.com/diogofgm/phnetscoutaed/actions/workflows/linting.yml/badge.svg?branch=main)](https://github.com/diogofgm/phnetscoutaed/actions/workflows/linting.yml)
+[![Semgrep](https://github.com/diogofgm/phnetscoutaed/actions/workflows/semgrep.yml/badge.svg?branch=main)](https://github.com/diogofgm/phnetscoutaed/actions/workflows/semgrep.yml)
 
 
 ## General Actions

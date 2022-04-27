@@ -1193,9 +1193,9 @@ class NetscoutAedConnector(BaseConnector):
         action_result.add_data(response)
         try:
             hosts = response.pop('hosts')
-            action_result.update_summary({'total_objects': len(hosts)})
+            action_result.update_summary({'num_hosts': len(hosts)})
         except:
-            action_result.update_summary({'total_objects': '1'})
+            action_result.update_summary({'num_hosts': '1'})
 
         return action_result.set_status(phantom.APP_SUCCESS)
 

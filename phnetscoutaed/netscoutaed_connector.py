@@ -1153,12 +1153,12 @@ class NetscoutAedConnector(BaseConnector):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-
         # Parameters:
         # hostAddress – Required: A single IPv4 or IPv6 host address or CIDR or a comma-separated list of host addresses or CIDRs.
         # cid – A specific central configuration ID or -1 for global. Cannot be used with the pgid parameter.
         # pgid – A single protection group ID (pgid), -1 for global, or a comma-separated list of pgids. Cannot be used with the cid parameter.
-        # annotation – A single description that applies to all of the specified hosts or a comma-separated list of descriptions, each of which applies to a specific host.
+        # annotation – A single description that applies to all of the specified hosts or a comma-separated list of descriptions, 
+        # each of which applies to a specific host.
 
         host = param['host']
         cid = param.get('cid', 'null')

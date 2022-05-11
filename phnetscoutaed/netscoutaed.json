@@ -989,8 +989,8 @@
         },
         {
             "action": "unblock inbound hosts",
-            "identifier": "unblock_inbound_host",
-            "description": "Unblock inbound host",
+            "identifier": "unblock_inbound_hosts",
+            "description": "Unblock inbound hosts",
             "verbose": "",
             "type": "correct",
             "read_only": false,

@@ -1240,7 +1240,7 @@ class NetscoutAedConnector(BaseConnector):
         # Build JSON for the request
         json_params = {}
 
-        json_params['hostAddress'] = host
+        json_params['hostAddress'] = host.split(",")
 
         if cid != 'null' and pgid != 'null':
             return action_result.get_status(phantom.APP_ERROR, "cid and pgid cannot be used together")

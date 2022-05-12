@@ -1237,10 +1237,14 @@ class NetscoutAedConnector(BaseConnector):
         cid = param.get('cid', 'null')
         pgid = param.get('pgid', 'null')
 
+        self.save_progress("Input hosts: {0}".format(host))
+        self.save_progress("Input cid: {0}".format(cid))
+        self.save_progress("Input pgid: {0}".format(pgid))
+
         # Build JSON for the request
         json_params = {}
 
-        json_params['hostAddress'] = host.split(",")
+        json_params['hostAddress'] = host.replace(" ","")
 
         if cid != 'null' and pgid != 'null':
             return action_result.get_status(phantom.APP_ERROR, "cid and pgid cannot be used together")
@@ -1250,10 +1254,10 @@ class NetscoutAedConnector(BaseConnector):
             json_params['pgid'] = pgid
 
         # If no cid or pgid is provided the action will default to the global configuration group
-        if cid == 'null' and pgid == 'null':
-            json_params['cid'] = "-1"
+        # if cid == 'null' and pgid == 'null':
+        #    json_params['cid'] = "-1"
 
-        self.save_progress(json_params)
+        self.save_progress("JSON params: {0}".format(json_params))
 
         # Make rest call
         ret_val, response = self._make_rest_call(
@@ -1270,11 +1274,9 @@ class NetscoutAedConnector(BaseConnector):
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        summary = action_result.update_summary({})
-        summary['total_objects'] = len(action_result['data'])
+        # summary = action_result.update_summary({})
+        # summary['total_objects'] = len(action_result['data'])
 
-        # Return success, no need to set the message, only the status
-        # BaseConnector will create a textual message based off of the summary dictionary
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_block_inbound_urls(self, param):

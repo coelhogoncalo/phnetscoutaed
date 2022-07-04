@@ -1,17 +1,17 @@
 {
     "appid": "3f3cff00-2741-4d93-b242-102aedea1c6e",
-    "name": "Netscout AED",
+    "name": "NetscoutAED",
     "description": "This app integrates with Netscout AED to execute containment actions",
     "type": "network security",
     "product_vendor": "Netscout",
     "logo": "logo_netscoutaed.png",
     "logo_dark": "logo_netscoutaed_dark.png",
-    "product_name": "Netscout AED",
+    "product_name": "NetscoutAED",
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Diogo Silva",
     "license": "Copyright (c) Diogo Silva, 2022",
-    "app_version": "2.0.0",
+    "app_version": "2.0.2",
     "utctime_updated": "2022-02-22T11:50:45.577910Z",
     "package_name": "phantom_netscoutaed",
     "main_module": "netscoutaed_connector.py",
@@ -108,7 +108,6 @@
                 "width": 5,
                 "height": 10,
                 "title": "Hosts on the outbound allow list"
-
             },
             "versions": "EQ(*)"
         },
@@ -160,7 +159,6 @@
                 "width": 5,
                 "height": 10,
                 "title": "Hosts on the outbound deny list"
-
             },
             "versions": "EQ(*)"
         },
@@ -431,7 +429,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -486,7 +484,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -541,7 +539,7 @@
             "type": "contain",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -596,7 +594,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -651,7 +649,7 @@
             "type": "contain",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -706,7 +704,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -761,7 +759,7 @@
             "type": "contain",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -816,7 +814,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -995,7 +993,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "host":{
+                "host": {
                     "description": "List inbound denied hosts to be unblocked",
                     "data_type": "string",
                     "required": true,
@@ -1177,7 +1175,7 @@
             "type": "correct",
             "read_only": false,
             "parameters": {
-                "url":{
+                "url": {
                     "description": "URL or a comma-separated list of URLs.",
                     "data_type": "string",
                     "required": true,
@@ -1243,5 +1241,10 @@
                 "input_file": "wheels/urllib3-1.26.7-py2.py3-none-any.whl"
             }
         ]
-    }
+    },
+    "directory": "netscoutaed_3f3cff00-2741-4d93-b242-102aedea1c6e",
+    "version": 1,
+    "appname": "-",
+    "executable": "spawn3",
+    "disabled": false
 }
